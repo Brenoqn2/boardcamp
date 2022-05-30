@@ -6,13 +6,13 @@ export async function getRentals(req, res) {
     let result;
     if (customerId) {
       result = await db.query(
-        `SELECT * FROM rentals WHERE customerId LIKE $1`,
+        `SELECT * FROM rentals WHERE 'customerId' LIKE $1`,
         [`${customerId}%`]
       );
       result = result.rows;
     } else if (gameId) {
       result = await db.query(
-        `SELECT * FROM rentals WHERE customerId LIKE $1`,
+        `SELECT * FROM rentals WHERE 'customerId' LIKE $1`,
         [`${customerId}%`]
       );
       result = result.rows;
