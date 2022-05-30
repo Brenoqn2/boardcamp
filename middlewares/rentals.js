@@ -2,7 +2,7 @@ import db from "../database.js";
 import validateSchema from "../schemas/validateSchema.js";
 import { rentalSchema } from "../schemas/rentals.js";
 
-export default async function validateRental(req, res, next) {
+export async function validateRental(req, res, next) {
   if (!validateSchema(req.body, rentalSchema) || req.body.daysRented <= 0)
     return res.sendStatus(400);
   const customerResult = await db.query(
@@ -25,6 +25,17 @@ export default async function validateRental(req, res, next) {
   rentalsForThisGame = rentalsForThisGame.rows;
   if (rentalsForThisGame.length >= game[0].stockTotal)
     return res.sendStatus(400);
+
+  next();
+}
+
+export async function validateRentalFinish(req, res, next) {
+  const id = req.params.id;
+  let rental = await db.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
+  rental = rental.rows;
+  console.log(rental);
+  if (rental.length === 0) return res.sendStatus(404);
+  if (rental.returnDate !== null) return res.sendStatus(400);
 
   next();
 }

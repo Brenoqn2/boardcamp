@@ -46,7 +46,6 @@ export async function getRentals(req, res) {
       };
       array.push(rentalObject);
     }
-    console.log(array);
     res.send(array);
   } catch (e) {
     console.log(e);
@@ -71,6 +70,37 @@ export async function addRental(req, res) {
       [customerId, gameId, daysRented, rentDate, null, originalPrice, null]
     );
     res.sendStatus(201);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+}
+
+export async function finishRental(req, res) {
+  try {
+    const id = req.params.id;
+    let returnDate = moment();
+    returnDate = returnDate.format("YYYY-MM-DD");
+    let rental = await db.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
+    rental = rental.rows[0];
+    let rentDate = rental.rentDate;
+    rentDate = moment(rentDate);
+    rentDate = rentDate.format("YYYY-MM-DD");
+    const pricePerDay = rental.originalPrice / rental.daysRented;
+    const dateOne = moment(returnDate.split("-"));
+    const dateTwo = moment(rentDate.split("-"));
+
+    const delayedDays = dateOne.diff(dateTwo, "days");
+    const delayFee = pricePerDay * delayedDays;
+    await db.query(
+      `
+        UPDATE rentals 
+        SET "returnDate" = $1, "delayFee" = $2
+        WHERE id = $3`,
+      [returnDate, delayFee, id]
+    );
+
+    res.sendStatus(200);
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
