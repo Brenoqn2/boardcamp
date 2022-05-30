@@ -106,3 +106,14 @@ export async function finishRental(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function deleteRental(req, res) {
+  try {
+    const id = req.params.id;
+    await db.query(`DELETE FROM rentals WHERE id = $1`, [id]);
+    res.sendStatus(200);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+}

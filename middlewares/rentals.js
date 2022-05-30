@@ -12,15 +12,22 @@ export async function validateRental(req, res, next) {
   const customer = customerResult.rows;
   if (customer.length === 0) return res.sendStatus(400);
 
-  const gameResult = await db.query(`SELECT * FROM games WHERE id = $1`, [
-    req.body.gameId,
-  ]);
+  const gameResult = await db.query(
+    `
+    SELECT * 
+    FROM games 
+    WHERE id = $1 `,
+    [req.body.gameId]
+  );
   const game = gameResult.rows;
   if (game.length === 0) return res.sendStatus(400);
 
   let rentalsForThisGame = await db.query(
-    `SELECT * FROM rentals WHERE "gameId" = $1`,
-    [req.body.gameId]
+    `
+    SELECT * 
+    FROM rentals 
+    WHERE "gameId" = $1 AND "returnDate" = $2`,
+    [req.body.gameId, null]
   );
   rentalsForThisGame = rentalsForThisGame.rows;
   if (rentalsForThisGame.length >= game[0].stockTotal)
@@ -33,7 +40,6 @@ export async function validateRentalFinish(req, res, next) {
   const id = req.params.id;
   let rental = await db.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
   rental = rental.rows;
-  console.log(rental);
   if (rental.length === 0) return res.sendStatus(404);
   if (rental[0].returnDate !== null) return res.sendStatus(400);
 
