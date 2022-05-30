@@ -35,7 +35,7 @@ export async function validateRentalFinish(req, res, next) {
   rental = rental.rows;
   console.log(rental);
   if (rental.length === 0) return res.sendStatus(404);
-  if (rental.returnDate !== null) return res.sendStatus(400);
+  if (rental[0].returnDate !== null) return res.sendStatus(400);
 
   next();
 }

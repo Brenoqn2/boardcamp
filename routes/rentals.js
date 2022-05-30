@@ -8,6 +8,6 @@ import {
 const rentalsRouter = Router();
 rentalsRouter.get("/rentals", getRentals);
 rentalsRouter.post("/rentals", validateRental, addRental);
-rentalsRouter.post("/rentals/:id/return", finishRental);
+rentalsRouter.post("/rentals/:id/return", validateRentalFinish, finishRental);
 
 export default rentalsRouter;
