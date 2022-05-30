@@ -26,12 +26,15 @@ export async function validateRental(req, res, next) {
     `
     SELECT * 
     FROM rentals 
-    WHERE "gameId" = $1 AND "returnDate" = $2`,
-    [req.body.gameId, null]
+    WHERE "gameId" = $1`,
+    [req.body.gameId]
   );
   rentalsForThisGame = rentalsForThisGame.rows;
-  if (rentalsForThisGame.length >= game[0].stockTotal)
-    return res.sendStatus(400);
+  let rentedGames = 0;
+  for (let i = 0; i < rentalsForThisGame.length; i++) {
+    if (rentalsForThisGame[i].returnDate === null) rentedGames += 1;
+  }
+  if (rentedGames >= game[0].stockTotal) return res.sendStatus(400);
 
   next();
 }
