@@ -29,9 +29,23 @@ export async function addCustomer(req, res) {
   await db.query(
     `
   INSERT INTO customers (name, phone, cpf,birthday)
-  VALUES ($1, $2,$3,$4)
+  VALUES ($1,$2,$3,$4)
   `,
     [name, phone, cpf, birthday]
   );
   res.sendStatus(201);
+}
+
+export async function updateCustomer(req, res) {
+  const id = req.params.id;
+  const { name, phone, cpf, birthday } = req.body;
+  await db.query(
+    `
+    UPDATE customers 
+    SET name = $1, phone = $2, birthday = $3, cpf = $4
+    WHERE id = $5
+  `,
+    [name, phone, birthday, cpf, id]
+  );
+  res.sendStatus(200);
 }
