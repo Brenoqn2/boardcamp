@@ -6,38 +6,48 @@ export async function getRentals(req, res) {
     const gameId = req.query.gameId;
     let result;
     if (customerId) {
-      result = await db.query(
-        `SELECT * FROM rentals WHERE 'customerId' LIKE $1`,
-        [`${customerId}%`]
-      );
+      result = await db.query(`SELECT * FROM rentals WHERE "customerId" = $1`, [
+        `${customerId * 1}`,
+      ]);
       result = result.rows;
     } else if (gameId) {
-      result = await db.query(
-        `SELECT * FROM rentals WHERE 'customerId' LIKE $1`,
-        [`${customerId}%`]
-      );
+      result = await db.query(`SELECT * FROM rentals WHERE 'gameId' = $1`, [
+        `${gameId * 1}`,
+      ]);
       result = result.rows;
     } else {
       result = await db.query(`SELECT * FROM rentals`);
       result = result.rows;
     }
-    let responseArr = [];
-    result.forEach(async (rental) => {
+    let array = [];
+    for (let i = 0; i < result.length; i++) {
       let customerInfo = await db.query(
-        `SELECT * FROM customers WHERE id = ${rental.customerId}`
+        `SELECT * FROM customers WHERE id = ${result[i].customerId}`
       );
       customerInfo = customerInfo.rows;
       let gameInfo = await db.query(
-        `SELECT * FROM games WHERE id = ${rental.gameId}`
+        `SELECT * FROM games WHERE id = ${result[i].gameId}`
       );
       gameInfo = gameInfo.rows;
-      responseArr.push({
-        ...rental,
-        customer: { ...customerInfo[0] },
-        game: { ...gameInfo[0] },
-      });
-    });
-    res.send(responseArr);
+
+      let categoryInfo = await db.query(
+        `SELECT * FROM categories WHERE id = ${gameInfo[0].categoryId}`
+      );
+      categoryInfo = categoryInfo.rows;
+      const rentalObject = {
+        ...result[i],
+        customer: { id: customerInfo[0].id, name: customerInfo[0].name },
+        game: {
+          id: gameInfo[0].id,
+          name: gameInfo[0].name,
+          categoryId: gameInfo[0].categoryId,
+          categoryName: categoryInfo[0].name,
+        },
+      };
+      array.push(rentalObject);
+    }
+    console.log(array);
+    res.send(array);
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
