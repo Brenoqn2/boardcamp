@@ -23,3 +23,15 @@ export async function getCustomer(req, res) {
   if (result.rows.length === 0) res.sendStatus(404);
   res.send(result.rows[0]);
 }
+
+export async function addCustomer(req, res) {
+  const { name, phone, cpf, birthday } = req.body;
+  await db.query(
+    `
+  INSERT INTO customers (name, phone, cpf,birthday)
+  VALUES ($1, $2,$3,$4)
+  `,
+    [name, phone, cpf, birthday]
+  );
+  res.sendStatus(201);
+}
