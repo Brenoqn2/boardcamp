@@ -6,9 +6,9 @@ import moment from "moment";
 export async function validateCustomer(req, res, next) {
   const id = req.params.id;
   const m = moment(req.body.birthday, "YYYY-MM-DD");
-  if (Number(req.body.birthday.split("-")[0]) < 1900)
-    return res.sendStatus(400);
   if (!validateSchema(req.body, customerSchema) || !m.isValid())
+    return res.sendStatus(400);
+  if (Number(req.body.birthday.split("-")[0]) < 1900)
     return res.sendStatus(400);
   const result = await db.query(`SELECT * FROM customers WHERE cpf = $1`, [
     req.body.cpf,
